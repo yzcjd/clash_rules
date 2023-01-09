@@ -1,2 +1,1 @@
-# clash_muban
-clash 简易分流配置
+# clash 简易分流配置
