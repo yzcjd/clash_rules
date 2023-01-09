@@ -1,0 +1,86 @@
+[custom]
+;APP去广告：支持
+;國內分流：支持
+;自動測速：支持
+
+; ############################################################################################################
+; 
+; 方便查看
+; 
+; 策略组
+; 	url-test:延迟最低，每隔一段时间进行延迟测试，选择延迟最低的节点。
+; 	fallback:故障转移，每次都选择组内的第一个节点，无法使用再更换另一个，以此类推。
+; 	load-balance:负载均衡，每个节点都用用，但是由于很多机场都有连接数的设置限制，所以，实际很少用。
+; 	select:手动选择，首页选择后去对应分区才能切换节点。
+; 
+; 规则配置
+; 	[当有多个规则可以匹配时，将会匹配到最先出现的规则。即在文本中位于最前面的规则。]
+; 	DOMAIN-SUFFIX:域名后缀匹配。
+; 	DOMAIN:域名匹配。
+; 	DOMAIN-KEYWORD:匹配域名关键字，更为模糊的规则。
+; 	IP-CIDR:根据 ip 段进行分流。
+; 	SRC-IP-CIDR:通过源 ip 所属的 ip 段进行分流。
+; 	GEOIP:通过解析的 ip 所属地进行分流。
+; 	DST-PORT:通过目标端口进行分流。
+; 	SRC-PORT:通过源端口进行分流。
+; 	MATCH:全匹配，一般放在最后用来捕捉漏网之鱼。
+; 
+; ruleset
+; 	从本地或 url 获取规则片段
+; 	格式为 Group name,[type:]URL[,interval] 或 Group name,[]Rule
+; 
+; 	基本格式:ruleset=你想走的策略组或节点,rules/你的list.list
+; 	[需要注意的是，根据出现先后顺序生成规则，因此如果你想让某个 list 有更高的优先级，在文件开头写它。]
+; 	[] 前缀后的文字将被当作规则，而不是链接或路径，主要包含 []GEOIP 和 []MATCH(等同于 []FINAL)。
+; 
+; 
+; custom_proxy_group
+; 	基础形式
+; 		custom_proxy_group=组名`类型`策略组1`策略组2`策略组3`
+; 		custom_proxy_group=组名`类型`(正则)`测速url(如果需要的话)`测速周期(如果需要的话)
+
+; 
+; 
+; ############################################################################################################
+
+;设置规则标志位
+; [需要注意的是，根据出现先后顺序生成规则，因此如果你想让某个 list 有更高的优先级，在文件开头写它。]
+; 表示引用 GEOIP 中关于美国的所有 IP
+ruleset=🎯 國內網站,clash-classic:https://cdn.staticaly.com/gh/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml
+ruleset=🎯 國內網站,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list
+;ruleset=🍃 軟件凈化,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list
+;ruleset=🔒 隱私保護,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/BanEasyPrivacy.list
+ruleset=🎯 國內網站,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list
+ruleset=▶️ 油管視頻,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/Ruleset/YouTube.list
+ruleset=📰 Telegram,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/Telegram.list
+ruleset=📶 節點選擇,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list
+ruleset=🎯 國內網站,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/UnBan.list
+ruleset=🎯 國內網站,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list
+ruleset=🎯 國內網站,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list
+ruleset=🎯 國內網站,https://cdn.staticaly.com/gh/ACL4SSR/ACL4SSR/master/Clash/Download.list
+ruleset=🎯 國內網站,[]GEOIP,CN
+ruleset=🕊️ 电报 yzcjd 配置,引用 raw 链接即可套用[]FINAL
+;設置規則標誌位
+
+;设置分组标志
+custom_proxy_group=📶 節點選擇`select`[]♻️ 自動選擇`[]✍️ 手動選擇`[]☯️ 故障轉移`[]♾️ 負載均衡
+custom_proxy_group=✍️ 手動選擇`select`.*
+custom_proxy_group=♻️ 自動選擇`url-test`.*`http://cp.cloudflare.com/generate_204`300,,50
+custom_proxy_group=☯️ 故障轉移`fallback`.*`http://cp.cloudflare.com/generate_204`300,,50
+custom_proxy_group=♾️ 負載均衡`load-balance`.*`http://cp.cloudflare.com/generate_204`300,,50
+custom_proxy_group=▶️ 油管視頻`select`[]♾️ 負載均衡`[]♻️ 自動選擇`[]☯️ 故障轉移`[]✍️ 手動選擇
+custom_proxy_group=📰 Telegram`select`[]☯️ 故障轉移`[]♻️ 自動選擇`[]♾️ 負載均衡`[]✍️ 手動選擇
+custom_proxy_group=🎯 國內網站`select`[]DIRECT
+;custom_proxy_group=🍃 軟件凈化`select`[]REJECT`[]DIRECT
+;custom_proxy_group=🔒 隱私保護`select`[]REJECT`[]DIRECT
+;兜底策略
+custom_proxy_group=🕊️ 电报 yzcjd 配置`select`[]DIRECT`[]♻️ 自動選擇`[]✍️ 手動選擇
+
+
+;rename=(.*)(_)(\d*)@本地測速
+
+
+;設置規則標誌位
+
+enable_rule_generator=true
+overwrite_original_rules=true
